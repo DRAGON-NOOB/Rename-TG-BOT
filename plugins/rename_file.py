@@ -11,6 +11,7 @@ if bool(os.environ.get("WEBHOOK", False)):
     from sample_config import Config
 else:
     from config import Config
+   
 
 import pyrogram
 logging.getLogger("pyrogram").setLevel(logging.WARNING)
@@ -29,8 +30,17 @@ async def rename_doc(bot, update):
     except Exception:
         LOGGER.exception("Unable to verify user")
         await update.reply_text("Something wenr Wrong 😴")
-    return 
     
+    @pyrogram.Client.on_message(pyrogram.Filters.command(["rename"]))
+async def rename_doc(bot, update):
+    if update.from_user.id in Config.BANNED_USERS:
+        await bot.delete_messages(
+            chat_id=update.chat.id,
+            message_ids=update.message_id,
+            revoke=True
+      )
+        return
+        
     TRChatBase(update.from_user.id, update.text, "rename")
     if (" " in update.text) and (update.reply_to_message is not None):
         cmd, file_name = update.text.split(" ", 1)
