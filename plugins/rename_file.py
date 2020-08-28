@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# (c) Shrimadhav U K
-
-# the logging things
 import logging
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -17,32 +12,25 @@ if bool(os.environ.get("WEBHOOK", False)):
 else:
     from config import Config
 
-# the Strings used for this "thing"
-from translation import Translation
-
 import pyrogram
 logging.getLogger("pyrogram").setLevel(logging.WARNING)
-from pyrogram import Client, Filters
-
-from helper_funcs.chat_base import TRChatBase
-from helper_funcs.display_progress import progress_for_pyrogram
-
-from hachoir.metadata import extractMetadata
-from hachoir.parser import createParser
-# https://stackoverflow.com/a/37631799/4723940
-from PIL import Image
-from database.database import *
-
+from pyrogram import Client, Filters, ChatPermissions
+from pyrogram import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.errors import UserNotParticipant, UserBannedInChannel
 
 @pyrogram.Client.on_message(pyrogram.Filters.command(["rename"]))
 async def rename_doc(bot, update):
-    if update.from_user.id in Config.BANNED_USERS:
-        await bot.delete_messages(
-            chat_id=update.chat.id,
-            message_ids=update.message_id,
-            revoke=True
-        )
-        return
+    try:
+        await bot.get_chat_member("Zed1Projctz", update.chat.id)
+    except UserNotParticipant:
+        await update.reply_text("Join @Zed1Projctz To Use Me")
+    except UserBannedInChannel:
+        await update.reply_text("You are Banned😌")
+    except Exception:
+        LOGGER.exception("Unable to verify user")
+        await update.reply_text("Something wenr Wrong 😴")
+    return False
+    )
     TRChatBase(update.from_user.id, update.text, "rename")
     if (" " in update.text) and (update.reply_to_message is not None):
         cmd, file_name = update.text.split(" ", 1)
