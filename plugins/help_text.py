@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # (c) Shrimadhav U K
 
@@ -42,28 +42,18 @@ async def help_user(bot, update):
         disable_web_page_preview=True,
         reply_to_message_id=update.message_id
     )
-  @pyrogram.Client.on_message(pyrogram.Filters.command(["start"]))
+
+@pyrogram.Client.on_message(pyrogram.Filters.command(["start"]))
 async def start(bot, update):
     # logger.info(update)
     TRChatBase(update.from_user.id, update.text, "/start")
-
     await bot.send_message(
         chat_id=update.chat.id,
         text=Translation.START_TEXT,
-        reply_to_message_id=update.message_id,
-        reply_markup=pyrogram.InlineKeyboardMarkup([
-                [pyrogram.InlineKeyboardButton(text='⚙️ Help', callback_data='help_cb'),
-                pyrogram.InlineKeyboardButton(text='Close 🔐', callback_data='close_cb')],
-        ]))
+        reply_to_message_id=update.message_id
+    )
 
 
-@pyrogram.Client.on_callback_query()
-async def cb_handler(bot, update):
-    if "help_cb" in update.data:
-        await update.message.delete()
-        await help_user(bot, update.message)
-    elif "close_cb" in update.data:
-        await update.message.delete()
 @pyrogram.Client.on_message(pyrogram.Filters.command(["upgrade"]))
 async def upgrade(bot, update):
     # logger.info(update)
