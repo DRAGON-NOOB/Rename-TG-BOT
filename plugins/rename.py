@@ -1,4 +1,4 @@
- #!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # (c) Shrimadhav U K
 
@@ -22,7 +22,7 @@ from translation import Translation
 
 import pyrogram
 logging.getLogger("pyrogram").setLevel(logging.WARNING)
-from pyrogram import emoji, Filters, InlineKeyboardButton, InlineKeyboardMarkup,callbackQuery,Forcereply
+from pyrogram import Client, Filters
 
 from helper_funcs.chat_base import TRChatBase
 from helper_funcs.display_progress import progress_for_pyrogram
@@ -33,24 +33,21 @@ from hachoir.parser import createParser
 from PIL import Image
 from database.database import *
 
-    await m.reply_text(
-         text = "rename file"
-        reply_markup = InlineKeyboardButton([
-       [ 
-         InlineKeyboardButton(text=f"{emoji.PENCIL}Rename",callback_data="")
 
-      ]  
-         ]) 
-          if cb_function == "rename" and cb.message.chat.id == cb.chat 
-await cb.message
-f"RENAME_{cb_message_id}:/n"
-f"send me new name as reply to file"
-
-reply_markup=ForceReply(true)
-
-
-                  
-                
+@pyrogram.Client.on_message(pyrogram.Filters.command(["rename"]))
+async def rename_doc(bot, update):
+    if update.from_user.id in Config.BANNED_USERS:
+        await update.reply_text("You are B A N N E D")
+        return
+    TRChatBase(update.from_user.id, update.text, "rename")
+    if (" " in update.text) and (update.reply_to_message is not None):
+        cmd, file_name = update.text.split(" ", 1)
+        if len(file_name) > 64:
+            await update.reply_text(
+                Translation.IFLONG_FILE_NAME.format(
+                    alimit="64",
+                    num=len(file_name)
+                )
             )
             return
         description = Translation.CUSTOM_CAPTION_UL_FILE
@@ -80,13 +77,6 @@ reply_markup=ForceReply(true)
                 )
             except:
                 pass
-            if "IndianMovie" in the_real_download_location:
-                await bot.edit_message_text(
-                    text=Translation.RENAME_403_ERR,
-                    chat_id=update.chat.id,
-                    message_id=a.message_id
-                )
-                return
             new_file_name = download_location + file_name
             os.rename(the_real_download_location, new_file_name)
             await bot.edit_message_text(
@@ -97,7 +87,7 @@ reply_markup=ForceReply(true)
             logger.info(the_real_download_location)
             thumb_image_path = Config.DOWNLOAD_LOCATION + "/" + str(update.from_user.id) + ".jpg"
             if not os.path.exists(thumb_image_path):
-                mes = await thumb(update.from_user.id)
+                mes = await get_thumb(update.from_user.id)
                 if mes != None:
                     m = await bot.get_messages(update.chat.id, mes.msg_id)
                     await m.download(file_name=thumb_image_path)
@@ -154,3 +144,4 @@ reply_markup=ForceReply(true)
             text=Translation.REPLY_TO_DOC_FOR_RENAME_FILE,
             reply_to_message_id=update.message_id
         )
+
