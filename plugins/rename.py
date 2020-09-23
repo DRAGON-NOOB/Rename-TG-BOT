@@ -32,31 +32,8 @@ from hachoir.parser import createParser
 # https://stackoverflow.com/a/37631799/4723940
 from PIL import Image
 from database.database import *
-@pyrogram.Client.on_callback_query()
-async def cb_handler(bot, update):
-if "rename" in update.data:
-        await update.message.rename()
-        await rename_doc(bot, update.message)
-  )
 
-@pyrogram.Client.on_message(pyrogram.filters.document)
-async def document(bot,update):
-  await bot.send_message(
-         chat_id=update.chat.id,
-         text = "hi",
-         reply_markup=InlineKeyboardMarkup(
-     [
-                [         InlineKeyboardButton(text=f"{emoji.PENCIL} Rename",
-                                         callback_data=f"rename")
-                ]
-            ]
-      ),
-         
-        
-       
-  reply_to_message_id=update.message_id
 
-)
 
 
 @pyrogram.Client.on_message(pyrogram.Filters.command(["rename"]))
@@ -170,18 +147,4 @@ async def rename_doc(bot, update):
             reply_to_message_id=update.message_id
         )
 
-  
-@Client.on_callback_query(filters.CallbackQuery)
-async def callback_rename_handler(bot,update):
-
-
-    await cb.answer()
-
-    params = cb.payload.split('_')
-    cb_message_id = int(params[1]) if len(params) > 1 else None
-
-    await cb.message.reply_text(
-        f"RENAME_{cb_message_id}:\n"
-        f"Send me the new name of the file as a reply to this message.",
-        reply_markup=ForceReply(True)
-    )
+ 
